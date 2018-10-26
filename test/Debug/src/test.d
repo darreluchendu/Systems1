@@ -1,1 +1,5 @@
-src/test.o: ../src/test.c
+src/test.d: ../src/test.c ../src/date.h ../src/tldlist.h
+
+../src/date.h:
+
+../src/tldlist.h:

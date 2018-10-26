@@ -4,15 +4,23 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/date.c \
+../src/tldlist.c \
 ../src/tldmonitor.c 
 
 O_SRCS += \
+../src/date.o \
+../src/tldlist.o \
 ../src/tldmonitor.o 
 
 OBJS += \
+./src/date.o \
+./src/tldlist.o \
 ./src/tldmonitor.o 
 
 C_DEPS += \
+./src/date.d \
+./src/tldlist.d \
 ./src/tldmonitor.d 
 
 
