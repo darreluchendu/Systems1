@@ -10,20 +10,44 @@ struct date{
 	int year;
 };
 
+
 Date *date_create(char *datestr){
-	 char day [3];
-	 char month[3];
-	 char year[5];
+	int day;
+	int month;
+    int year;
+
+	Date *date= malloc(sizeof(Date));
+
+	if (strlen(datestr)!=10){
+		return NULL;
+	}
+	if (datestr[2]!='/'){
+		return NULL;
+	}
+	if (datestr[5]!='/'){
+		return NULL;
+	}
 
 
-	 Date *date= malloc(sizeof(Date));
-	 strncpy(day, datestr, 2);
-	 strncpy(month, datestr+3, 2);
-	 strncpy(year, datestr+6, 4);
+	int x= sscanf(datestr, "%u/%u/%u", &day,&month,&year);
+	if (x!=3){
+		return NULL;
+	}
 
-	 date->day = atoi  (day);
-	 date->month =atoi (month);
-	 date->year =atoi (year);
+	if (day>31 || day<1){
+		return NULL;
+	}
+
+	if (month>12 || month <1){
+		return NULL;
+	}
+
+	if (year<1){
+		return NULL;
+	}
+	date->day = day;
+	date->month =month;
+	date->year =year;
 
 
 
@@ -35,9 +59,10 @@ Date *date_create(char *datestr){
 	}
 }
 
+
 Date *date_duplicate(Date *d){
 	Date *date= malloc(sizeof(Date));
-	*date = *d;
+	date = d;
 
 	if (date){
 		 return date;
@@ -53,19 +78,19 @@ Date *date_duplicate(Date *d){
  * date1<date2, date1==date2, date1>date2, respectively
  */
 int date_compare(Date *date1, Date *date2){
-	if(date1->year > date2->year) {
+	if(date1->year >= date2->year) {
 		return 1;
-	}else if (date1->year < date2->year) {
+	}else if (date1->year <= date2->year) {
 		return -1;
 	}else {
-		if(date1->month > date2->month) {
+		if(date1->month >= date2->month) {
 			return 1;
-		}else if (date1->month < date2->month) {
+		}else if (date1->month <= date2->month) {
 			return -1;
 		}else {
-			if(date1->day > date2->day) {
+			if(date1->day >= date2->day) {
 				return 1;
-			}else if (date1->day < date2->day) {
+			}else if (date1->day <= date2->day) {
 				return -1;
 			}else{
 				return 0;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <regex.h>
 
 struct tldnode {
 	int balance;
@@ -21,19 +22,23 @@ struct tldlist {
 };
 
 struct tlditerator{
-	TLDNode *root;
-	TLDNode **list;
-	int next;
+	TLDNode * next;
+	int size;
 };
 
 TLDNode * newNode(char * name, TLDNode * parent) {
-	TLDNode * node = malloc(sizeof(TLDNode));
-	node->tld_name = name;
+	TLDNode * node = (TLDNode*)  malloc(sizeof(TLDNode));
+	int len=strlen(name);
+	char *p = (char *) malloc(sizeof(char *)* (len+1));
+	strcpy(p,name);
+	node->tld_name = p;
 	node->parent = parent;
 	node->left = NULL;
 	node->right = NULL;
-	node->height = 1;  // new node is initially added at leaf
-	node->node_count++;
+	  // new node is initially added at leaf
+	node->node_count=1;
+	node->height=1;
+
 	return (node);
 }
 
@@ -46,8 +51,9 @@ int max(int a, int b) {
 }
 
 int height(TLDNode * n) {
-	if (n == NULL)
+	if (n == NULL){
 		return -1;
+	}
 	return n->height;
 }
 
@@ -63,7 +69,8 @@ void setBalance(TLDNode * n) {
 
 TLDNode * rotateLeft(TLDNode *a) {
 
-	TLDNode *b = a->right;
+	//TLDNode *b = (TLDNode *) malloc(sizeof(TLDNode));
+	TLDNode *b=a->right;
 	b->parent = a->parent;
 
 	a->right = b->left;
@@ -87,18 +94,25 @@ TLDNode * rotateLeft(TLDNode *a) {
 
 	return b;
 }
-
-void tree_to_array(TLDNode* tree, TLDNode *array, int  * index){
-	 if (tree != NULL){
-		 array[*index] = *tree;
-		 *index=*index+1;
-		 tree_to_array(tree->left, array, index);
-		 tree_to_array(tree->right, array, index);
-	 }
-	 else{
-		 return;
-	 }
-	}
+//
+//void tree_to_array(TLDNode* tree, TLDNode *array, int  * index){
+//		 if (tree != NULL){
+//			// TLDNode * x =(TLDNode *) malloc(sizeof(TLDNode));
+//			// *x =*tree;
+//			 //printf("%s index: %d",tree->tld_name, *index);
+//			 array[*index] = *tree;
+//			 //printf("%s",array[*index].tld_name);
+//			 *index=*index+1;
+//			// x=NULL;
+//			 //free(x);
+//			 tree_to_array(tree->left, array, index);
+//			 tree_to_array(tree->right, array, index);
+//
+//		 }
+//		 else{
+//			 return;
+//		 }
+//		}
 
 TLDNode * rotateRight(TLDNode *a) {
 
@@ -137,7 +151,7 @@ TLDNode * rotateRightThenLeft(TLDNode * n) {
 	return rotateLeft(n);
 }
 
-void rebalance(TLDNode *n) {
+void rebalance(TLDNode *n, TLDList* tld) {
 	setBalance(n);
 
 	if (n->balance == -2) {
@@ -154,83 +168,37 @@ void rebalance(TLDNode *n) {
 	}
 
 	if (n->parent != NULL) {
-		rebalance(n->parent);
-	}
-}
-
-
-//TLDNode * newNode(char * name) {
-//	TLDNode * node = malloc(sizeof(TLDNode));
-//    node->tld_name   = name;
-//    node->left   = NULL;
-//    node->right  = NULL;
-//    node->height = 1;  // new node is initially added at leaf
-//    node->node_count++;
-//    return(node);
-//}
-//TLDNode *rightRotate(TLDNode *y)
-//{
-//	TLDNode *x = y->left;
-//	TLDNode *T2 = x->right;
-//
-//    // Perform rotation
-//    x->right = y;
-//    y->left = T2;
-//
-//    // Update heights
-//    y->height = max(height(y->left), height(y->right))+1;
-//    x->height = max(height(x->left), height(x->right))+1;
-//
-//    // Return new root
-//    return x;
-//}
-//
-//// A utility function to left rotate subtree rooted with x
-//// See the diagram given above.
-//TLDNode *leftRotate(TLDNode *x)
-//{
-//	TLDNode *y = x->right;
-//	TLDNode *T2 = y->left;
-//
-//    // Perform rotation
-//    y->left = x;
-//    x->right = T2;
-//
-//    //  Update heights
-//    x->height = max(height(x->left), height(x->right))+1;
-//    y->height = max(height(y->left), height(y->right))+1;
-//
-//    // Return new root
-//    return y;
-//}
-//
-//// Get Balance factor of node N
-//int getBalance(TLDNode *N)
-//{
-//    if (N == NULL){
-//        return 0;
-//    return height(N->right) - height(N->left);
-//	}
-//}
-
-/*
- * tldlist_create generates a list structure for storing counts against
- * top level domains (TLDs)
- *
- * creates a TLDList that is constrained to the `begin' and `end' Date's
- * returns a pointer to the list if successful, NULL if not
- */
-TLDList *tldlist_create(Date *begin, Date *end) {
-	TLDList *list = malloc(sizeof(TLDList));
-	list->begin = begin;
-	list->end = end;
-
-	if (list) {
-		return list;
+		rebalance(n->parent,tld);
 	} else {
-		return NULL;
+		tld->root=n;
 	}
 }
+
+TLDNode* search(TLDNode* node, char * tld_name){
+	// Base Cases: node is null or tld_name is present at node
+	if (node == NULL || strcmp(node->tld_name, tld_name)==0)
+	   return node;
+
+	// tld_name is greater than node's tld_name
+	if (strcmp(tld_name,node->tld_name)) {
+	   return search(node->right, tld_name);
+	}
+
+	// tld_name is smaller than node's tld_name
+	return search(node->left, tld_name);
+}
+
+
+TLDList * tldlist_create(Date *begin, Date *end){
+	TLDList *tld= malloc(sizeof(TLDList));
+	tld->begin=date_duplicate(begin);
+	tld->end=date_duplicate(end);
+	tld->list_count=0;
+	tld->root=NULL;
+
+	return tld;
+}
+
 
 /*
  * tldlist_destroy destroys the list structure in `tld'
@@ -247,46 +215,79 @@ void tldlist_destroy(TLDList *tld) {
  * returns 1 if the entry was counted, 0 if not
  */
 int tldlist_add(TLDList *tld, char *hostname, Date *d) {
-	if (date_compare(tld->begin, d) < 0 && date_compare(tld->end, d) > 0) {
+	hostname= hostname + strlen(hostname) - 3;
+	if (hostname[0]=='.'){
+		hostname= hostname + strlen(hostname) - 2;
+	}
+	if(d==NULL){
+		return 0;
+	}
 
+	if (date_compare(tld->begin, d) < 0 && date_compare(d, tld->end) > 0) {
+		return 0;
+	}
 		if (tld->root == NULL) {
 
 			TLDNode * root = newNode(hostname, NULL);
-			tld->root = root;
 			tld->list_count++;
-
+			tld->root = root;
+			//tld->list_count= tld->list_count+1;
 			root = NULL;
 			free(root);
 			return 1;
 		}
 		TLDNode* n = tld->root;
+
 		while (1) {
-			if (n->tld_name == hostname) {
+//			//printf ("%s current :%s\n",tldnode_tldname(n),hostname);
+			if (strcmp(n->tld_name, hostname)==0) {
 				n->node_count++;
 				tld->list_count++;
 				return 1;
 			}
 
+			// C function to search a given key in a given BST
+//			TLDNode *dupe=search(tld->root, hostname);
+//						if (dupe){
+//
+//							dupe->node_count++;
+//							tld->list_count++;
+//							return 1;
+//						}
+
+
+//			TLDNode *duplicate=search(n, hostname);
+//			if (duplicate){
+//
+//				duplicate->node_count++;
+//				tld->list_count++;
+//				return 1;
+//			}
+
 			TLDNode * parent = n;
-			int goLeft = strcmp(n->tld_name, hostname);
-			n = goLeft ? n->left : n->right;
+			int goLeft = strcmp(tldnode_tldname(n), hostname);
+			if (goLeft>0){
+				n=n->left;
+			}else{
+				n=n->right;
+			}
 
 			if (n == NULL) {
-				if (goLeft) {
+				if (goLeft>0) {
 					parent->left = newNode(hostname, parent);
 
 				} else {
 					parent->right = newNode(hostname, parent);
 				}
 				tld->list_count++;
-				rebalance(parent);
+
+				rebalance(parent,tld);
+				break;
 			}
+
 		}
+
 		return 1;
-	}
-	else {
-		return 0;
-	}
 }
 /*
  * tldlist_count returns the number of successful tldlist_add() calls since
@@ -301,11 +302,15 @@ long tldlist_count(TLDList *tld) {
  */
 TLDIterator *tldlist_iter_create(TLDList *tld){
 	TLDIterator * iter = malloc(sizeof(TLDIterator));
-	iter->root=tld->root;
-	iter->list= malloc(sizeof(TLDNode) * tld->list_count);
-	iter->next=1;
-	tree_to_array(iter->root,*iter->list,&iter->next);
-	return iter;
+	if (iter){
+		iter->next = tld->root;
+	}
+
+	while (iter->next->left != NULL){
+	   iter->next = iter->next->left;
+	}
+	iter->size=0;
+	 return iter;
 
 }
 
@@ -314,28 +319,47 @@ TLDIterator *tldlist_iter_create(TLDList *tld){
  * to the TLDNode if successful, NULL if no more elements to return
  */
 TLDNode *tldlist_iter_next(TLDIterator *iter){
-
-	TLDNode * next =iter->list[iter->next];
-
-	if (next !=NULL){
-		iter->next++;
-		return next;
+	TLDNode * r;
+	if (iter->next){
+		r =iter->next;
 	}else{
 		return NULL;
+	}
+
+	if(iter->next->right != NULL) {
+		iter->next = iter->next->right;
+		while (iter->next->left != NULL)
+			iter->next = iter->next->left;
+		iter->size++;
+		return r;
+	}
+
+	while(1) {
+		if(iter->next->parent == NULL) {
+			iter->next = NULL;
+			iter->size++;
+			return r;
+		}
+		if(iter->next->parent->left == iter->next) {
+			iter->next = iter->next->parent;
+			iter->size++;
+		   return r;
+		}
+
+		iter->next = iter->next->parent;
 	}
 }
 /*
  * tldlist_iter_destroy destroys the iterator specified by `iter'
  */
 void tldlist_iter_destroy(TLDIterator *iter){
-	int i =0;
-	while(iter->list[i]){
-		iter->list[i]=NULL;
-		free(iter->list[i]);
-		iter->list=NULL;
-		free(iter->list);
-		i++;
-	}
+//	int i =0;
+//	while(iter->list[i]){
+//		//iter->list[i]=NULL;
+//		//free(iter->list[i]);
+//		//free(iter->list);
+//		i++;
+//	}
 	iter=NULL;
 	free(iter);
 }
@@ -343,6 +367,9 @@ void tldlist_iter_destroy(TLDIterator *iter){
  * tldnode_tldname returns the tld associated with the TLDNode
  */
 char *tldnode_tldname(TLDNode *node) {
+	//int len=strlen(node->tld_name);
+	//char *p = malloc(sizeof(char *)* (len+1));
+	//strcpy(p,node->tld_name);
 	return node->tld_name;
 }
 

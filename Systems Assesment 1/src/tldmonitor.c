@@ -25,6 +25,7 @@ static void process(FILE *fd, TLDList *tld) {
     }
     *q = '\0';
     d = date_create(bf);
+
     (void)tldlist_add(tld, p, d);
     date_destroy(d);
   }
@@ -54,7 +55,9 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, USAGE, argv[0]);
     return -1;
   }
+
   begin = date_create(argv[1]);
+
   if (begin == NULL) {
     fprintf(stderr, "Error processing begin date: %s\n", argv[1]);
     cleanup(it, tld, begin, end);
@@ -101,9 +104,11 @@ int main(int argc, char *argv[]) {
     cleanup(it, tld, begin, end);
     return -1;
   }
+  int count=0;
   while ((n = tldlist_iter_next(it))) {
     printf("%6.2f %s\n", 100.0 * (double)tldnode_count(n) / total,
            tldnode_tldname(n));
+    count++;
   }
   tldlist_iter_destroy(it);
   tldlist_destroy(tld);
