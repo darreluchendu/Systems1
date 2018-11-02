@@ -1,5 +1,9 @@
-#include "date.h"
+//Name: Bulienna Uchendu
+//GUID: 2236676u
+//Title: SP Excercise 1
+//This is my own work as defined in the Academic Ethics agreement
 
+#include "date.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

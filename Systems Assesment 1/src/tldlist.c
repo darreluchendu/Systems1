@@ -1,8 +1,13 @@
+
+//Name: Bulienna Uchendu
+//GUID: 2236676u
+//Title: SP Excercise 1
+//This is my own work as defined in the Academic Ethics agreement
+
 #include "tldlist.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <regex.h>
 
 struct tldnode {
 	int balance;
@@ -31,11 +36,11 @@ TLDNode * newNode(char * name, TLDNode * parent) {
 	int len=strlen(name);
 	char *p = (char *) malloc(sizeof(char *)* (len+1));
 	strcpy(p,name);
-	node->tld_name = p;
+	*node->tld_name = *p;
 	node->parent = parent;
 	node->left = NULL;
 	node->right = NULL;
-	  // new node is initially added at leaf
+	  // new node iss initially added at leaf
 	node->node_count=1;
 	node->height=1;
 

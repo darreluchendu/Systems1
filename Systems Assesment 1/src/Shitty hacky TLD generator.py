@@ -1,6 +1,6 @@
 import sys
 import random
-from urllib2 import urlopen
+from urllib.request import urlopen
 import string
 from time import mktime,strptime,strftime,localtime,gmtime
 from math import sqrt
