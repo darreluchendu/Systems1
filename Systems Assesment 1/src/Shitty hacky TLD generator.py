@@ -24,7 +24,7 @@ def randomDate(start, end, prop):
 
 # usage gen_tld.py START_DATE END_DATE NUMBER_OF_LINES
 f = open("enormous.txt", "w")
-o = open("enormous.out", "w")
+o = open("enormous_out.txt", "w")
 
 
 data = urlopen("http://data.iana.org/TLD/tlds-alpha-by-domain.txt")
@@ -89,5 +89,6 @@ for k,v in d.items():
 prn.sort()
 for i in prn:
     o.write(i)
+    print (i)
 
 print("Saved resultes to enormous.out")

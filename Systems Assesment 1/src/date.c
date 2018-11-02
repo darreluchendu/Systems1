@@ -2,6 +2,7 @@
 //GUID: 2236676u
 //Title: SP Excercise 1
 //This is my own work as defined in the Academic Ethics agreement
+//gg
 
 #include "date.h"
 #include <stdio.h>

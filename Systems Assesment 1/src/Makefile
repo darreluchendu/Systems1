@@ -10,10 +10,6 @@ tldlist.o: tldlist.h tldlist.c
 tldmonitor.o: tldmonitor.c date.h tldlist.h
 	gcc -Wall -Werror -g -o tldmonitor.o -c tldmonitor.c
 
-clean:
-	rm -f *.o tldmonitor
-	
-valgrind: tldmonitor.o date.o tldlist.o
-		gcc -Wall -Werror -g -o tldmonitor --leak-check=yes tldmonitor tldmonitor.o date.o tldlist.o
+
 	
 	
